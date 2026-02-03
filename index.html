@@ -372,7 +372,7 @@ async function fetchJSON(date = null){
       date = today;
     }
 
-    // ✅ Setăm input-ul și titlul imediat
+    // Setăm input-ul și titlul imediat
     dateSelector.value = date;
     dayTitle.textContent = new Date(date).toLocaleDateString("en-US",{
       year:"numeric",
@@ -389,7 +389,11 @@ async function fetchJSON(date = null){
     }
 
     const arr = await response.json();
-    const list = Array.isArray(arr) ? arr : [];
+
+    // Transformăm obiecte JSON în array dacă nu e array
+    let list = [];
+    if(Array.isArray(arr)) list = arr;
+    else if(arr && typeof arr === "object") list = [arr];
 
     if(list.length === 0){
       content.innerHTML = `<p>- NO DATA!</p>`;
@@ -428,6 +432,5 @@ window.addEventListener("online", () => fetchJSON(dateSelector.value || null));
 /* INIT */
 navigator.onLine ? fetchJSON() : showOffline();
 </script>
-
 </body>
 </html>
