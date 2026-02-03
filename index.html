@@ -238,7 +238,7 @@ input[type=date]{
 
 </div>
 
-<div class="footer">&copy;2026 cl@udiuz</div>
+<div class="footer">&copy;2025 cl@udiuz</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -372,10 +372,18 @@ async function fetchJSON(date = null){
       date = today;
     }
 
+    // ✅ Setăm input-ul și titlul imediat
+    dateSelector.value = date;
+    dayTitle.textContent = new Date(date).toLocaleDateString("en-US",{
+      year:"numeric",
+      month:"long",
+      day:"numeric"
+    });
+
     const response = await fetch(`data/${date}.json`, { cache:"no-store" });
 
     if(!response.ok){
-      content.innerHTML = "";
+      content.innerHTML = `<p>- NO DATA!</p>`;
       reveal();
       return;
     }
@@ -384,19 +392,10 @@ async function fetchJSON(date = null){
     const list = Array.isArray(arr) ? arr : [];
 
     if(list.length === 0){
-      content.innerHTML = "";
+      content.innerHTML = `<p>- NO DATA!</p>`;
       reveal();
       return;
     }
-
-    const d = list[0].date.toString().trim().slice(0,10);
-
-    dateSelector.value = d;
-    dayTitle.textContent = new Date(d).toLocaleDateString("en-US",{
-      year:"numeric",
-      month:"long",
-      day:"numeric"
-    });
 
     renderPredictions(list);
     reveal();
@@ -432,4 +431,3 @@ navigator.onLine ? fetchJSON() : showOffline();
 
 </body>
 </html>
-
