@@ -751,7 +751,6 @@ dateSelector.addEventListener("input", e=>{
 });
 
 window.addEventListener("offline", showOffline);
-window.addEventListener("online", () => fetchJSON(dateSelector.value || null));
 
 /* INIT */
 window.addEventListener("load", () => {
@@ -768,5 +767,6 @@ window.addEventListener("load", () => {
 
 </body>
 </html>
+
 
 
