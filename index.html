@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>Soccer Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 :root{
@@ -196,6 +196,163 @@ input[type=date]{
   color:var(--accent);
 }
 
+/* GRID 1 / X / 2 / BTTS / +1.5 */
+.pred-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:4px;
+  margin-top:6px;
+  font-size:11px;
+  text-align:center;
+}
+.pred-grid div{
+  padding:3px 2px;
+  border-radius:4px;
+  background:rgba(0,0,0,0.35);
+}
+.pred-grid .pred-label{font-weight:bold;color:#00ffff}
+.pred-grid .pred-value{font-weight:bold;color:#fff}
+
+/* FORM CHART SCROLLABLE */
+.chart-scroll{
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin-top:6px;
+}
+.chart-scroll-inner{
+  min-width:520px;
+}
+@media(max-width:480px){
+  .chart-scroll-inner{min-width:420px}
+}
+
+/* COP PREMIUM */
+.cop-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(0,0,0,0.55);
+  border:1px solid #00ffff55;
+  font-size:12px;
+  line-height:1.45;
+  box-shadow:0 0 10px rgba(0,255,255,0.15);
+  position:relative;
+}
+.cop-title{
+  font-weight:700;
+  color:#00ffff;
+  margin-bottom:8px;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:0.6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+}
+.cop-title .icon{
+  font-size:16px;
+  color:#00ffff;
+}
+.cop-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.cop-team{
+  flex:1;
+  background:rgba(0,0,0,0.25);
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #00ffff33;
+  text-align:center;
+  transition:0.25s;
+}
+.cop-team b{
+  color:#00ffff;
+  font-size:12px;
+}
+.cop-team.highlight{
+  border-color:#ffd700cc;
+  box-shadow:0 0 12px rgba(255,215,0,0.35);
+  transform:scale(1.03);
+  background:rgba(255,215,0,0.08);
+}
+.cop-pred{
+  margin-top:10px;
+  text-align:center;
+  font-weight:700;
+  color:#ffd700;
+  font-size:15px;
+  letter-spacing:0.7px;
+}
+.cop-badge{
+  position:absolute;
+  top:-10px;
+  right:-10px;
+  background:#ffd700;
+  color:#000;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  box-shadow:0 0 8px rgba(255,215,0,0.5);
+}
+
+/* H2H PREMIUM */
+.h2h-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(0,0,0,0.55);
+  border:1px solid #00ffff55;
+  font-size:12px;
+  line-height:1.45;
+  box-shadow:0 0 10px rgba(0,255,255,0.15);
+  position:relative;
+}
+.h2h-title{
+  font-weight:700;
+  color:#00ffff;
+  margin-bottom:8px;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:0.6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+}
+.h2h-title .icon{
+  font-size:16px;
+  color:#00ffff;
+}
+.h2h-stats{
+  text-align:center;
+  margin-top:6px;
+  color:#fff;
+}
+.h2h-pred{
+  margin-top:10px;
+  text-align:center;
+  font-weight:700;
+  color:#ffd700;
+  font-size:15px;
+  letter-spacing:0.7px;
+}
+.h2h-badge{
+  position:absolute;
+  top:-10px;
+  left:-10px;
+  background:#ffd700;
+  color:#000;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  box-shadow:0 0 8px rgba(255,215,0,0.5);
+}
+
 @media(min-width:900px){
   .card{max-width:600px;margin:12px auto;padding:10px}
 }
@@ -297,68 +454,210 @@ function renderPredictions(list){
   content.innerHTML = "";
 
   list.forEach((item, index) => {
-    const home = parseFloat(item.home) || 0;
-    const away = parseFloat(item.away) || 0;
-    const btts = parseFloat(item.btts) || 0;
+
+    const home = item.predictions.home;
+    const draw = item.predictions.draw;
+    const away = item.predictions.away;
+    const btts = item.predictions.btts;
+    const over15 = item.predictions.over15;
 
     const card = document.createElement("div");
     card.className = "card";
 
+    /* COP highlight logic */
+    let copHTML = "";
+    if(item.COP){
+      const t1 = item.COP.team1;
+      const t2 = item.COP.team2;
+      const t1Class = t1.points > t2.points ? "highlight" : "";
+      const t2Class = t2.points > t1.points ? "highlight" : "";
+
+      copHTML = `
+        <div class="cop-box">
+          <div class="cop-badge">${item.COP.prediction}</div>
+
+          <div class="cop-title">
+            <span class="icon">⚖️</span>
+            COP – Common Opponents Predictor
+          </div>
+
+          <div class="cop-row">
+            <div class="cop-team ${t1Class}">
+              <b>Team 1</b><br>
+              ${t1.points}p (${t1.wins}W ${t1.draws}D ${t1.losses}L)
+            </div>
+
+            <div class="cop-team ${t2Class}">
+              <b>Team 2</b><br>
+              ${t2.points}p (${t2.wins}W ${t2.draws}D ${t2.losses}L)
+            </div>
+          </div>
+
+          <div class="cop-pred">Prediction: ${item.COP.prediction}</div>
+        </div>
+      `;
+    }
+
+    /* H2H */
+    let h2hHTML = "";
+    if(item.H2H && item.H2H.matches > 0){
+      h2hHTML = `
+        <div class="h2h-box">
+          <div class="h2h-badge">${item.H2H.prediction}</div>
+
+          <div class="h2h-title">
+            <span class="icon">🔁</span>
+            H2H – Last ${item.H2H.matches} Meetings
+          </div>
+
+          <div class="h2h-stats">
+            ${item.H2H.wins}W ${item.H2H.draws}D ${item.H2H.losses}L<br>
+            Goals: ${item.H2H.goalsFor}‑${item.H2H.goalsAgainst}<br>
+            Points: ${item.H2H.points}
+          </div>
+
+          <div class="h2h-pred">Prediction: ${item.H2H.prediction}</div>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="card-header">
         <div>${item.match}<br><small>Date: ${item.date}</small></div>
-        <div>Pred: ${item.pred}</div>
+        <div>Pred: ${item.predictions.final}</div>
       </div>
+
       <canvas id="chart-${index}" height="150"></canvas>
+
+      <div class="pred-grid">
+        <div class="pred-label">1</div>
+        <div class="pred-label">X</div>
+        <div class="pred-label">2</div>
+        <div class="pred-label">BTTS</div>
+        <div class="pred-label">+1.5</div>
+
+        <div class="pred-value">${home}%</div>
+        <div class="pred-value">${draw}%</div>
+        <div class="pred-value">${away}%</div>
+        <div class="pred-value">${btts}%</div>
+        <div class="pred-value">${over15}%</div>
+      </div>
+
+      <div class="chart-scroll">
+        <div class="chart-scroll-inner">
+          <canvas id="formchart-${index}" height="140"></canvas>
+        </div>
+      </div>
+
+      ${copHTML}
+      ${h2hHTML}
     `;
 
     content.appendChild(card);
 
+    /* BAR CHART */
     const ctx = document.getElementById(`chart-${index}`).getContext("2d");
 
     new Chart(ctx,{
-      type:"bar",
-      data:{
-        labels:["Home %","Away %","BTTS %"],
-        datasets:[{
-          label:"Prediction",
-          data:[home, away, btts],
-          backgroundColor:[
-            "rgba(0,255,255,0.8)",
-            "rgba(255,215,0,0.8)",
-            "rgba(255,80,80,0.8)"
-          ],
-          borderColor:["#00ffff","#ffd700","#ff4c4c"],
-          borderWidth:2,
-          barThickness:26
-        }]
-      },
-      options:{
-        responsive:true,
-        animation:false,
-        plugins:{
-          legend:{display:false},
-          datalabels:{
-            color:"#fff",
-            font:{weight:"bold",size:11},
-            anchor:"end",
-            align:"start",
-            formatter:v=>v+"%",
-            textStrokeColor:"#000",
-            textStrokeWidth:3
-          }
+  type:"bar",
+  data:{
+    labels:["1","2","BTTS"],
+    datasets:[{
+      label:"Prediction",
+      data:[home, away, btts],
+      backgroundColor:[
+        "rgba(0,255,255,0.8)",
+        "rgba(255,215,0,0.8)",
+        "rgba(255,80,80,0.8)"
+      ],
+      borderColor:["#00ffff","#ffd700","#ff4c4c"],
+      borderWidth:2,
+      barThickness:26
+    }]
+  },
+  options:{
+    responsive:true,
+    animation:false,
+    plugins:{
+      legend:{display:false},
+      datalabels:{
+        color:"#fff",
+        font:{weight:"bold",size:11},
+        anchor:"end",
+        align:"start",
+        formatter:v=>v+"%",
+        textStrokeColor:"#000",
+        textStrokeWidth:3
+      }
+    },
+    scales:{
+      y:{beginAtZero:true,max:100,ticks:{color:"#fff"}},
+      x:{ticks:{color:"#fff"}}
+    }
+  },
+  plugins:[ChartDataLabels]
+});
+
+/* FORM CHART */
+const fc = item.formChart;
+if(fc && Array.isArray(fc.team1) && Array.isArray(fc.team2)){
+  const ctxForm = document.getElementById(`formchart-${index}`).getContext("2d");
+
+  const t1 = fc.team1;
+  const t2 = fc.team2;
+
+  const maxLen = Math.max(t1.length, t2.length);
+  const labels = [];
+  const data1 = new Array(maxLen).fill(null);
+  const data2 = new Array(maxLen).fill(null);
+
+  for(let i=0;i<maxLen;i++) labels.push("M"+(i+1));
+
+  for(let i=0;i<t1.length;i++) data1[i] = t1[i].pts;
+  for(let i=0;i<t2.length;i++) data2[i] = t2[i].pts;
+
+  new Chart(ctxForm,{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          label:fc.team1Name,
+          data:data1,
+          borderColor:"#22c55e",
+          backgroundColor:"rgba(34,197,94,0.15)",
+          tension:0.3,
+          pointRadius:4,
+          pointHoverRadius:6
         },
-        scales:{
-          y:{beginAtZero:true,max:100,ticks:{color:"#fff"}},
-          x:{ticks:{color:"#fff"}}
+        {
+          label:fc.team2Name,
+          data:data2,
+          borderColor:"#ef4444",
+          backgroundColor:"rgba(239,68,68,0.15)",
+          tension:0.3,
+          pointRadius:4,
+          pointHoverRadius:6
         }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:"#fff",font:{size:10}}}
       },
-      plugins:[ChartDataLabels]
-    });
+      scales:{
+        x:{ticks:{color:"#9ca3af",font:{size:9}},grid:{color:"#111827"}},
+        y:{ticks:{color:"#9ca3af",font:{size:9}},grid:{color:"#111827"},suggestedMin:0,suggestedMax:3,stepSize:1}
+      }
+    }
   });
 }
 
-/* FETCH JSON FROM /data/ */
+}); // end list.forEach
+} // end renderPredictions
+/* FETCH JSON */
 async function fetchJSON(date = null){
   clearTimeout(retryTimer);
 
@@ -372,7 +671,6 @@ async function fetchJSON(date = null){
       date = today;
     }
 
-    // Setăm input-ul și titlul imediat
     dateSelector.value = date;
     dayTitle.textContent = new Date(date).toLocaleDateString("en-US",{
       year:"numeric",
@@ -390,7 +688,6 @@ async function fetchJSON(date = null){
 
     const arr = await response.json();
 
-    // Transformăm obiecte JSON în array dacă nu e array
     let list = [];
     if(Array.isArray(arr)) list = arr;
     else if(arr && typeof arr === "object") list = [arr];
@@ -432,5 +729,6 @@ window.addEventListener("online", () => fetchJSON(dateSelector.value || null));
 /* INIT */
 navigator.onLine ? fetchJSON() : showOffline();
 </script>
+
 </body>
 </html>
