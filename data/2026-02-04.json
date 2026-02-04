@@ -1,0 +1,314 @@
+[
+  {
+    "match": "Domzale - Maribor",
+    "pred": "X2",
+    "home": "49%",
+    "away": "51%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Metaloglobus - Csikszereda",
+    "pred": "X2",
+    "home": "36%",
+    "away": "64%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Smouha Sporting - Pyramids",
+    "pred": "X2",
+    "home": "18%",
+    "away": "82%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "ZED - El Masry Club",
+    "pred": "X",
+    "home": "50%",
+    "away": "50%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "OFI Crete - Levadiakos",
+    "pred": "X2",
+    "home": "49%",
+    "away": "51%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Genclerbirligi - Eyupspor",
+    "pred": "1X",
+    "home": "57%",
+    "away": "43%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Apollon Limassol - Omonia Aradippou",
+    "pred": "1X",
+    "home": "62%",
+    "away": "38%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "UTA Arad - CFR 1907 Cluj",
+    "pred": "1X",
+    "home": "55%",
+    "away": "45%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Asteras Tripolis - Olympiakos",
+    "pred": "X2",
+    "home": "32%",
+    "away": "68%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Celje - Radomlje",
+    "pred": "1X",
+    "home": "51%",
+    "away": "49%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Pafos - APOEL",
+    "pred": "1X",
+    "home": "53%",
+    "away": "47%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Omonia - AEL Limassol",
+    "pred": "1X",
+    "home": "61%",
+    "away": "39%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Galatasaray - Istanbulspor",
+    "pred": "1X",
+    "home": "86%",
+    "away": "14%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "NEC Nijmegen - Volendam",
+    "pred": "1X",
+    "home": "81%",
+    "away": "19%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Kahraba Ismailia - Zamalek",
+    "pred": "X2",
+    "home": "27%",
+    "away": "73%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Maccabi Bnei Raina - Hapoel Beer Sheva",
+    "pred": "X2",
+    "home": "36%",
+    "away": "64%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Stade Lausanne Ouchy - Luzern",
+    "pred": "1X",
+    "home": "100%",
+    "away": "0%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Panathinaikos - PAOK",
+    "pred": "X2",
+    "home": "43%",
+    "away": "57%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Valletta - Floriana",
+    "pred": "X2",
+    "home": "43%",
+    "away": "57%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Farul - Dinamo Bucuresti",
+    "pred": "X2",
+    "home": "38%",
+    "away": "62%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "St. Gallen - Basel",
+    "pred": "1X",
+    "home": "52%",
+    "away": "48%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Sporting Charleroi - Union Saint Gilloise",
+    "pred": "X2",
+    "home": "43%",
+    "away": "57%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Lorient - Paris",
+    "pred": "X2",
+    "home": "40%",
+    "away": "60%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Nice - Montpellier Herault",
+    "pred": "1X",
+    "home": "71%",
+    "away": "29%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Jagiellonia - GKS Katowice",
+    "pred": "X2",
+    "home": "25%",
+    "away": "75%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Holstein Kiel - Stuttgart",
+    "pred": "X2",
+    "home": "36%",
+    "away": "64%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Dundee FC - Motherwell",
+    "pred": "X2",
+    "home": "45%",
+    "away": "55%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Hibernian - Dundee United",
+    "pred": "1X",
+    "home": "73%",
+    "away": "27%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Livingston - Falkirk",
+    "pred": "X2",
+    "home": "31%",
+    "away": "69%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Rangers - Kilmarnock",
+    "pred": "1X",
+    "home": "84%",
+    "away": "16%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Real Santander - Atletico Cali",
+    "pred": "X2",
+    "home": "48%",
+    "away": "52%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Tigres Bogota - Orsomarso",
+    "pred": "X2",
+    "home": "49%",
+    "away": "51%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Manchester City - Newcastle United",
+    "pred": "1X",
+    "home": "86%",
+    "away": "14%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Inter - Torino",
+    "pred": "1X",
+    "home": "67%",
+    "away": "33%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Hibernians Paola - St. Patrick Zabbar",
+    "pred": "1X",
+    "home": "67%",
+    "away": "33%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "SV Eindhoven - Heerenveen",
+    "pred": "1X",
+    "home": "65%",
+    "away": "35%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Aberdeen - Celtic",
+    "pred": "X2",
+    "home": "29%",
+    "away": "71%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Alaves - Real Sociedad",
+    "pred": "1X",
+    "home": "60%",
+    "away": "40%",
+    "btts": 0,
+    "date": "2026-02-04"
+  },
+  {
+    "match": "Valencia - Athletic Bilbao",
+    "pred": "1X",
+    "home": "100%",
+    "away": "0%",
+    "btts": 0,
+    "date": "2026-02-04"
+  }
+]
