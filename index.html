@@ -754,8 +754,9 @@ window.addEventListener("offline", showOffline);
 window.addEventListener("online", () => fetchJSON(dateSelector.value || null));
 
 /* INIT */
-navigator.onLine ? fetchJSON() : showOffline();
+if (navigator.onLine) { const today = new Date().toISOString().slice(0,10); dateSelector.value = today; // ← AICI E MAGIA fetchJSON(today); } else { showOffline(); }
 </script>
 
 </body>
 </html>
+
