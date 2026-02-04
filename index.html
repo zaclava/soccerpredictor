@@ -661,18 +661,18 @@ if(fc && Array.isArray(fc.team1) && Array.isArray(fc.team2)){
 async function fetchJSON(date = null){
   clearTimeout(retryTimer);
 
-  overlay.style.display="flex";
-  bottomAlert.style.display="block";
-  bottomAlert.textContent="WAIT, DATA IS LOADING...";
+  overlay.style.display = "flex";
+  bottomAlert.style.display = "block";
+  bottomAlert.textContent = "WAIT, DATA IS LOADING...";
 
-  try{
-    if(!date){
+  try {
+    if (!date) {
       const today = new Date().toISOString().slice(0,10);
       date = today;
     }
 
     dateSelector.value = date;
-    dayTitle.textContent = new Date(date).toLocaleDateString("en-US",{
+    dayTitle.textContent = new Date(date).toLocaleDateString("en-US", {
       year:"numeric",
       month:"long",
       day:"numeric"
@@ -680,35 +680,62 @@ async function fetchJSON(date = null){
 
     const response = await fetch(`data/${date}.json`, { cache:"no-store" });
 
-    if(!response.ok){
+    // 🔥 1. FIȘIERUL LIPSEȘTE → NO DATA
+    if (response.status === 404) {
       content.innerHTML = `<p>- NO DATA!</p>`;
       reveal();
       return;
     }
 
-    const arr = await response.json();
+    // 🔥 2. ALTE ERORI HTTP → NO DATA (nu offline)
+    if (!response.ok) {
+      content.innerHTML = `<p>- NO DATA!</p>`;
+      reveal();
+      return;
+    }
 
+    // 🔥 3. ÎNCERCĂM SĂ PARSĂM JSON
+    let arr;
+    try {
+      arr = await response.json();
+    } catch (jsonErr) {
+      content.innerHTML = `<p>- INVALID JSON!</p>`;
+      reveal();
+      return;
+    }
+
+    // 🔥 4. LISTA ESTE GOALĂ
     let list = [];
-    if(Array.isArray(arr)) list = arr;
-    else if(arr && typeof arr === "object") list = [arr];
+    if (Array.isArray(arr)) list = arr;
+    else if (arr && typeof arr === "object") list = [arr];
 
-    if(list.length === 0){
+    if (list.length === 0) {
       content.innerHTML = `<p>- NO DATA!</p>`;
       reveal();
       return;
     }
 
+    // 🔥 5. TOTUL OK → RENDER
     renderPredictions(list);
     reveal();
 
-    if(navigator.onLine && !localStorage.getItem("cookieNoticeAccepted")){
+    if (navigator.onLine && !localStorage.getItem("cookieNoticeAccepted")) {
       cookieBanner.classList.remove("hidden");
     }
 
-  }catch(err){
-    showOffline();
+  } catch (err) {
+    // 🔥 6. AICI INTRĂ DOAR DACĂ EȘTI CU ADEVĂRAT OFFLINE
+    if (!navigator.onLine) {
+      showOffline();
+      return;
+    }
+
+    // 🔥 7. ALTE ERORI → NO DATA
+    content.innerHTML = `<p>- NO DATA!</p>`;
+    reveal();
   }
 }
+
 
 /* EVENTS */
 dateSelector.addEventListener("input", e=>{
