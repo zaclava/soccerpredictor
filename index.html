@@ -15,8 +15,6 @@ p{text-align:center;margin-top:70px;margin-bottom:10px}
 .sidenav .closebtn{position:absolute;top:0;right:48px;font-size:36px;margin-left:50px}
 .header-bar{position:fixed;top:0;left:0;right:0;margin:auto;text-align:center;background:#000;color:var(--accent);padding:12px;font-size:28px;cursor:pointer;z-index:9999}
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999}
-#bottom-alert{font-weight:700;font-size:16px;animation:blink 1.8s linear infinite;color:#fff}
-@keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.25}}
 .spinner{width:40px;height:40px;border:5px solid rgba(255,255,255,.3);border-top:5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 #offline-overlay{position:fixed;inset:0;background:#000;color:#f55;font-size:22px;font-weight:700;text-align:center;justify-content:center;align-items:center;z-index:10001;display:none}
@@ -50,16 +48,19 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
 .h2h-pred,.cop-pred{margin-top:10px;text-align:center;font-weight:700;color:#ffd700;font-size:15px;letter-spacing:.7px}
 </style>
 </head>
+
 <body>
 <div id="overlay">
   <div class="spinner"></div>
-  <div id="bottom-alert">WAIT, DATA IS LOADING...</div>
 </div>
+
 <div id="offline-overlay">OFFLINE</div>
+
 <div id="cookie-banner" class="hidden">
   <span>This site uses cookies to improve your experience.</span>
   <button id="cookieAccept">OK</button>
 </div>
+
 <div id="deferred-root" class="hidden">
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -68,16 +69,21 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
     <a href="#">Facebook</a>
     <a href="#">YouTube</a>
   </div>
+
   <div id="headerBar" class="header-bar" onclick="openNav()">
     &#9776;&nbsp;<b>SOCCER PREDICTOR</b>
   </div>
+
   <p>Select matches by date <input type="date" id="date-selector"></p>
   <div id="day-title" class="day-title"></div>
   <main class="main" id="content"></main>
 </div>
+
 <div class="footer">&copy;2025 cl@udiuz</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
 <script>
 function makeCell(l,v){
   let b="#444";
@@ -87,8 +93,8 @@ function makeCell(l,v){
   else b="#d50000";
   return `<div class="pred-cell" style="background:${b}"><div class="pred-label">${l}</div>${v}%</div>`;
 }
+
 const overlay=document.getElementById("overlay");
-const bottomAlert=document.getElementById("bottom-alert");
 const offlineOverlay=document.getElementById("offline-overlay");
 const deferredRoot=document.getElementById("deferred-root");
 const content=document.getElementById("content");
@@ -97,21 +103,25 @@ const cookieBanner=document.getElementById("cookie-banner");
 const cookieBtn=document.getElementById("cookieAccept");
 const dayTitle=document.getElementById("day-title");
 let activeRequestId=0;
+
 function openNav(){document.getElementById("mySidenav").style.width="100%";document.getElementById("headerBar").style.display="none";}
 function closeNav(){document.getElementById("mySidenav").style.width="0";document.getElementById("headerBar").style.display="block";}
+
 cookieBtn.onclick=()=>{localStorage.setItem("cookieNoticeAccepted","true");cookieBanner.classList.add("hidden");};
+
 function showOffline(){
   overlay.style.display="flex";
-  bottomAlert.textContent="OFFLINE...";
   deferredRoot.classList.add("hidden");
   offlineOverlay.style.display="flex";
 }
+
 function reveal(id){
   if(id!==activeRequestId)return;
   overlay.style.display="none";
   offlineOverlay.style.display="none";
   deferredRoot.classList.remove("hidden");
 }
+
 function renderPredictions(list){
   content.innerHTML="";
   list.forEach((item,index)=>{
@@ -120,8 +130,10 @@ function renderPredictions(list){
     const away=item.predictions.away;
     const btts=item.predictions.btts;
     const over15=item.predictions.over15;
+
     const card=document.createElement("div");
     card.className="card";
+
     let copHTML="";
     if(item.COP){
       const t1=item.COP.team1;
@@ -139,6 +151,7 @@ function renderPredictions(list){
         <div class="cop-pred">Prediction: ${item.COP.prediction}</div>
       </div>`;
     }
+
     let h2hHTML="";
     if(item.H2H && item.H2H.matches>0){
       h2hHTML=`
@@ -151,11 +164,13 @@ function renderPredictions(list){
         <div class="h2h-pred">Prediction: ${item.H2H.prediction}</div>
       </div>`;
     }
+
     card.innerHTML=`
       <div class="card-header">
         <div>${item.match}<br><small>Date: ${item.date}</small></div>
         <div>Pred: ${item.predictions.final}</div>
       </div>
+
       <div class="pred-grid">
         ${makeCell("1",home)}
         ${makeCell("X",draw)}
@@ -163,23 +178,29 @@ function renderPredictions(list){
         ${makeCell("BTTS",btts)}
         ${makeCell("+1.5",over15)}
       </div>
+
       <div class="chart-scroll">
         <div class="chart-scroll-inner">
           <canvas id="formchart-${index}" height="140"></canvas>
         </div>
       </div>
+
       ${copHTML}${h2hHTML}
     `;
+
     content.appendChild(card);
+
     const fc=item.formChart;
     if(fc){
       const ctxForm=document.getElementById(`formchart-${index}`).getContext("2d");
       const t1=fc.team1,t2=fc.team2;
       const maxLen=Math.max(t1.length,t2.length);
       const labels=[],data1=new Array(maxLen).fill(null),data2=new Array(maxLen).fill(null);
+
       for(let i=0;i<maxLen;i++)labels.push("M"+(i+1));
       for(let i=0;i<t1.length;i++)data1[i]=t1[i].pts;
       for(let i=0;i<t2.length;i++)data2[i]=t2[i].pts;
+
       new Chart(ctxForm,{
         type:"line",
         data:{
@@ -202,57 +223,70 @@ function renderPredictions(list){
     }
   });
 }
+
 async function fetchJSON(date=null){
   const id=++activeRequestId;
   overlay.style.display="flex";
-  bottomAlert.textContent="WAIT, DATA IS LOADING...";
+
   try{
     if(!date){
       date=new Date().toISOString().slice(0,10);
     }
+
     dateSelector.value=date;
     dayTitle.textContent=new Date(date).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+
     const response=await fetch(`data/${date}.json`,{cache:"no-store"});
+
     if(response.status===404){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
+
     if(!response.ok){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
+
     let arr;
     try{arr=await response.json();}catch{
       content.innerHTML="<p>- INVALID JSON!</p>";
       reveal(id);
       return;
     }
+
     let list=[];
     if(Array.isArray(arr))list=arr;
     else if(arr && typeof arr==="object")list=[arr];
+
     if(list.length===0){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
+
     renderPredictions(list);
     reveal(id);
+
     if(navigator.onLine && !localStorage.getItem("cookieNoticeAccepted")){
       cookieBanner.classList.remove("hidden");
     }
+
   }catch{
     if(!navigator.onLine){showOffline();return;}
     content.innerHTML="<p>- NO DATA!</p>";
     reveal(id);
   }
 }
+
 dateSelector.addEventListener("input",e=>{
   const d=e.target.value;
   if(!d)return;
   fetchJSON(d);
 });
+
 window.addEventListener("load",()=>{
   setTimeout(()=>{
     if(!navigator.onLine){
@@ -266,5 +300,6 @@ window.addEventListener("load",()=>{
   },0);
 });
 </script>
+
 </body>
 </html>
