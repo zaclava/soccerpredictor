@@ -126,50 +126,108 @@ canvas{max-width:100%}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-/* ELEMENTE */
-const overlay=document.getElementById("overlay");
-const offlineOverlay=document.getElementById("offline-overlay");
-const deferredRoot=document.getElementById("deferred-root");
-const content=document.getElementById("content");
-const dateSelector=document.getElementById("date-selector");
-const cookieBanner=document.getElementById("cookie-banner");
-const cookieBtn=document.getElementById("cookieAccept");
-const dayTitle=document.getElementById("day-title");
-const bigModal=document.getElementById("bigModal");
-const bigModalTitle=document.getElementById("bigModalTitle");
-const bigModalBody=document.getElementById("bigModalBody");
-const bigModalClose=document.getElementById("bigModalClose");
-const smallModal=document.getElementById("smallModal");
-const smallModalBody=document.getElementById("smallModalBody");
-const smallModalClose=document.getElementById("smallModalClose");
+/* ================== ELEMENTE ================== */
+const overlay = document.getElementById("overlay");
+const offlineOverlay = document.getElementById("offline-overlay");
+const deferredRoot = document.getElementById("deferred-root");
+const content = document.getElementById("content");
+const dateSelector = document.getElementById("date-selector");
+const cookieBanner = document.getElementById("cookie-banner");
+const cookieBtn = document.getElementById("cookieAccept");
+const dayTitle = document.getElementById("day-title");
 
-let activeRequestId=0;
-let charts=[];
+const bigModal = document.getElementById("bigModal");
+const bigModalTitle = document.getElementById("bigModalTitle");
+const bigModalBody = document.getElementById("bigModalBody");
+const bigModalClose = document.getElementById("bigModalClose");
 
-/* SIDENAV */
-function openNav(){document.getElementById("mySidenav").style.width="100%";document.getElementById("headerBar").style.display="none"}
-function closeNav(){document.getElementById("mySidenav").style.width="0";document.getElementById("headerBar").style.display="block"}
+const smallModal = document.getElementById("smallModal");
+const smallModalBody = document.getElementById("smallModalBody");
+const smallModalClose = document.getElementById("smallModalClose");
 
-/* COOKIE */
-if(localStorage.getItem("cookieNoticeAccepted")!=="true"){cookieBanner.classList.remove("hidden")}
-cookieBtn.onclick=()=>{localStorage.setItem("cookieNoticeAccepted","true");cookieBanner.classList.add("hidden")}
+let charts = [];
+let activeRequestId = 0;
+let controller = null;
 
-/* LOADER */
-function showOffline(){overlay.style.display="flex";deferredRoot.classList.add("hidden");offlineOverlay.style.display="flex"}
-function reveal(id){if(id!==activeRequestId)return;overlay.style.display="none";offlineOverlay.style.display="none";deferredRoot.classList.remove("hidden")}
+/* ================== UTILS ================== */
+const esc = s => String(s ?? "").replace(/[&<>"']/g,m=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+}[m]));
 
-/* FORMAT EURO */
-function formatEuroDate(iso){if(!iso)return"";const d=new Date(iso);if(isNaN(d))return iso;return d.toLocaleDateString("ro-RO",{day:"2-digit",month:"2-digit",year:"numeric"})}
+function num(v){
+  v = Number(v);
+  return isNaN(v) ? 0 : v;
+}
 
-/* BIG MODAL */
-function openBigModal(title,html){bigModalTitle.textContent=title;bigModalBody.innerHTML=html;bigModal.style.display="flex"}
-function closeBigModal(){bigModal.style.display="none"}
-bigModalClose.onclick=closeBigModal;
-bigModal.onclick=e=>{if(e.target===bigModal)closeBigModal()}
+function formatEuroDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("ro-RO",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
 
-/* SMALL MODAL */
+/* ================== UI STATE ================== */
+function showOffline(){
+  overlay.style.display="none";
+  deferredRoot.classList.add("hidden");
+  offlineOverlay.style.display="flex";
+  cookieBanner.classList.add("hidden");
+}
+
+function reveal(id){
+  if(id !== activeRequestId) return;
+
+  overlay.style.display="none";
+  offlineOverlay.style.display="none";
+  deferredRoot.classList.remove("hidden");
+
+  if(localStorage.getItem("cookieNoticeAccepted") !== "true"){
+    cookieBanner.classList.remove("hidden");
+  }
+}
+
+/* ================== COOKIE ================== */
+if(cookieBtn){
+  cookieBtn.onclick = ()=>{
+    localStorage.setItem("cookieNoticeAccepted","true");
+    cookieBanner.classList.add("hidden");
+  };
+}
+
+/* ================== SIDENAV ================== */
+function openNav(){
+  document.getElementById("mySidenav").style.width="100%";
+  document.getElementById("headerBar").style.display="none";
+}
+function closeNav(){
+  document.getElementById("mySidenav").style.width="0";
+  document.getElementById("headerBar").style.display="block";
+}
+
+/* ================== CELULE ================== */
+function makeCell(label,value){
+  value = num(value);
+  let bg="#444";
+  if(value>=75) bg="#00c853";
+  else if(value>=60) bg="#ffd600";
+  else if(value>=40) bg="#ff9100";
+  else bg="#d50000";
+
+  return `<div class="pred-cell" style="background:${bg}">
+    <div class="pred-label">${label}</div>${value}%
+  </div>`;
+}
+
+/* ================== MODALE ================== */
+function openBigModal(title,html){
+  bigModalTitle.textContent = title;
+  bigModalBody.innerHTML = html;
+  bigModal.style.display="flex";
+}
+function closeBigModal(){ bigModal.style.display="none"; }
+
 function openSmallModal(blocks){
-  smallModalBody.innerHTML="";
+  smallModalBody.textContent="";
   blocks.forEach(b=>{
     const div=document.createElement("div");
     div.className="small-match-block";
@@ -178,345 +236,125 @@ function openSmallModal(blocks){
         <div class="small-dot" style="background:${b.color}"></div>
         <div class="small-date">${b.date}</div>
       </div>
-      <div class="small-opponent">${b.opponent}</div>
+      <div class="small-opponent">${esc(b.opponent)}</div>
       <div class="small-ha" style="color:${b.haColor}">${b.ha}</div>
-      <div class="small-score">${b.score}</div>
+      <div class="small-score">${esc(b.score)}</div>
     `;
     smallModalBody.appendChild(div);
   });
   smallModal.style.display="flex";
 }
-function closeSmallModal(){smallModal.style.display="none"}
-smallModalClose.onclick=closeSmallModal;
-smallModal.onclick=e=>{if(e.target===smallModal)closeSmallModal()}
+function closeSmallModal(){ smallModal.style.display="none"; }
 
-/* CELL COLOR */
-function makeCell(label,value){
-  let bg="#444";
-  if(value>=75)bg="#00c853";
-  else if(value>=60)bg="#ffd600";
-  else if(value>=40)bg="#ff9100";
-  else bg="#d50000";
-  return `<div class="pred-cell" style="background:${bg}"><div class="pred-label">${label}</div>${value}%</div>`;
-}
+bigModalClose.onclick = closeBigModal;
+smallModalClose.onclick = closeSmallModal;
 
-/* RENDER */
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    closeBigModal();
+    closeSmallModal();
+  }
+});
+
+/* ================== RENDER ================== */
 function renderPredictions(list){
   content.innerHTML="";
-  charts.forEach(ch=>ch.destroy());
+  charts.forEach(c=>c.destroy());
   charts=[];
 
   list.forEach((item,index)=>{
-    const home=item.predictions?.home??0;
-    const draw=item.predictions?.draw??0;
-    const away=item.predictions?.away??0;
-    const btts=item.predictions?.btts??0;
-    const over15=item.predictions?.over15??0;
-
     const card=document.createElement("div");
     card.className="card";
 
-    /* COP */
-    let copHTML="";
-    if(item.COP){
-      const t1=item.COP.team1||{};
-      const t2=item.COP.team2||{};
-      const t1Class=(t1.points||0)>(t2.points||0)?"highlight":"";
-      const t2Class=(t2.points||0)>(t1.points||0)?"highlight":"";
-      copHTML=`
-      <div class="cop-box" data-index="${index}">
-        <div class="cop-badge">${item.COP.prediction||""}</div>
-        <div class="cop-title">⚖️ COP – Common Opponents Predictor</div>
-        <div class="cop-row">
-          <div class="cop-team ${t1Class}"><b>Team 1</b><br>${t1.points||0}p (${t1.wins||0}W ${t1.draws||0}D ${t1.losses||0}L)</div>
-          <div class="cop-team ${t2Class}"><b>Team 2</b><br>${t2.points||0}p (${t2.wins||0}W ${t2.draws||0}D ${t2.losses||0}L)</div>
-        </div>
-        <div class="cop-pred">Prediction: ${item.COP.prediction||""}</div>
-      </div>`;
-    }
-
-    /* H2H */
-    let h2hHTML="";
-    if(item.H2H){
-      if(item.H2H.matches>0){
-        h2hHTML=`
-        <div class="h2h-box" data-index="${index}">
-          <div class="h2h-badge">${item.H2H.prediction||""}</div>
-          <div class="h2h-title">🔁 H2H – Last ${item.H2H.matches} Meetings</div>
-                    <div class="h2h-stats">
-            ${item.H2H.wins || 0}W ${item.H2H.draws || 0}D ${item.H2H.losses || 0}L<br>
-            Goals: ${item.H2H.goalsFor || 0}-${item.H2H.goalsAgainst || 0}<br>
-            Points: ${item.H2H.points || 0}
-          </div>
-          <div class="h2h-pred">Prediction: ${item.H2H.prediction || ""}</div>
-        </div>`;
-      } else {
-        h2hHTML = `
-        <div class="h2h-box disabled">
-          <div class="h2h-title">🔁 H2H</div>
-          <div class="h2h-stats">H2H: No in last 10 matches</div>
-        </div>`;
-      }
-    }
-
-    /* CARD HTML FINAL */
-    card.innerHTML = `
+    card.innerHTML=`
       <div class="card-header">
-        <div>${item.match || ""}<br><small>Data: ${formatEuroDate(item.date)}</small></div>
-        <div>Pred: ${item.predictions?.final || ""}</div>
+        <div>${esc(item.match)}<br>
+          <small>Data: ${formatEuroDate(item.date)}</small>
+        </div>
+        <div>Pred: ${esc(item.predictions?.final)}</div>
       </div>
 
       <div class="pred-grid">
-        ${makeCell("1", home)}
-        ${makeCell("X", draw)}
-        ${makeCell("2", away)}
-        ${makeCell("BTTS", btts)}
-        ${makeCell("+1.5", over15)}
+        ${makeCell("1",item.predictions?.home)}
+        ${makeCell("X",item.predictions?.draw)}
+        ${makeCell("2",item.predictions?.away)}
+        ${makeCell("BTTS",item.predictions?.btts)}
+        ${makeCell("+1.5",item.predictions?.over15)}
       </div>
 
       <div class="chart-scroll">
         <div class="chart-scroll-inner">
-          <canvas id="formchart-${index}" height="110"></canvas>
+          <canvas id="chart-${index}" height="110"></canvas>
         </div>
       </div>
-
-      ${copHTML}
-      ${h2hHTML}
     `;
 
     content.appendChild(card);
 
-    /* CHART */
-    const fc = item.formChart;
-    if (fc) {
-      const ctx = document.getElementById(`formchart-${index}`).getContext("2d");
-      const t1 = fc.team1 || [];
-      const t2 = fc.team2 || [];
-      const maxLen = Math.max(t1.length, t2.length);
+    if(item.formChart){
+      const ctx=document.getElementById(`chart-${index}`).getContext("2d");
+      const t1=item.formChart.team1||[];
+      const t2=item.formChart.team2||[];
 
-      const labels = [];
-      const data1 = new Array(maxLen).fill(null);
-      const data2 = new Array(maxLen).fill(null);
+      const max=Math.max(t1.length,t2.length);
+      const labels=[...Array(max)].map((_,i)=>"M"+(i+1));
+      const d1=[...Array(max)].map((_,i)=>t1[i]?.pts ?? null);
+      const d2=[...Array(max)].map((_,i)=>t2[i]?.pts ?? null);
 
-      for (let i = 0; i < maxLen; i++) labels.push("M" + (i + 1));
-      for (let i = 0; i < t1.length; i++) data1[i] = t1[i].pts;
-      for (let i = 0; i < t2.length; i++) data2[i] = t2[i].pts;
-
-      const chart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: fc.team1Name || "Team 1",
-              data: data1,
-              borderColor: fc.team1Color || "#22c55e",
-              backgroundColor: "rgba(34,197,94,0.15)",
-              tension: 0.3,
-              pointRadius: 4,
-              pointBackgroundColor: fc.team1Color || "#22c55e"
-            },
-            {
-              label: fc.team2Name || "Team 2",
-              data: data2,
-              borderColor: fc.team2Color || "#ef4444",
-              backgroundColor: "rgba(239,68,68,0.15)",
-              tension: 0.3,
-              pointRadius: 4,
-              pointBackgroundColor: fc.team2Color || "#ef4444"
-            }
+      const chart=new Chart(ctx,{
+        type:"line",
+        data:{
+          labels,
+          datasets:[
+            {label:item.formChart.team1Name,data:d1,borderColor:"#22c55e",tension:.3},
+            {label:item.formChart.team2Name,data:d2,borderColor:"#ef4444",tension:.3}
           ]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: { color: "#fff", font: { size: 10 } }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "#9ca3af", font: { size: 9 } },
-              grid: { color: "#111827" }
-            },
-            y: {
-              suggestedMin: 0,
-              suggestedMax: 3,
-              ticks: {
-                stepSize: 1,
-                color: "#9ca3af",
-                font: { size: 9 },
-                callback: v => [0, 1, 3].includes(v) ? v : ""
-              },
-              grid: { color: "#111827" }
-            }
-          },
-
-          /* CLICK PE PUNCT */
-          onClick: (evt, elements) => {
-            if (!elements.length) return;
-            const el = elements[0];
-            const datasetIndex = el.datasetIndex;
-            const dataIndex = el.index;
-
-            /* PULSE MAGIC */
-            const meta = chart.getDatasetMeta(datasetIndex);
-            const point = meta.data[dataIndex];
-            if (point) {
-              point.custom = point.custom || {};
-              const original = point.custom.radius || point.options.radius || 4;
-              point.custom.radius = original * 1.6;
-              chart.update();
-              setTimeout(() => {
-                point.custom.radius = original;
-                chart.update();
-              }, 400);
-            }
-
-            /* CARD MIC */
-            const blocks = [];
-            const t1Match = t1[dataIndex];
-            const t2Match = t2[dataIndex];
-
-            if (t1Match) {
-              blocks.push({
-                color: fc.team1Color || "#22c55e",
-                date: formatEuroDate(t1Match.date),
-                opponent: t1Match.opponent || "",
-                ha: t1Match.ha || "",
-                haColor: t1Match.ha === "H" ? "#22c55e" : "#ef4444",
-                score: t1Match.score || ""
-              });
-            }
-            if (t2Match) {
-              blocks.push({
-                color: fc.team2Color || "#ef4444",
-                date: formatEuroDate(t2Match.date),
-                opponent: t2Match.opponent || "",
-                ha: t2Match.ha || "",
-                haColor: t2Match.ha === "H" ? "#22c55e" : "#ef4444",
-                score: t2Match.score || ""
-              });
-            }
-
-            if (blocks.length) openSmallModal(blocks);
-          }
+        options:{
+          responsive:true,
+          maintainAspectRatio:false
         }
       });
-
       charts.push(chart);
     }
   });
-
-  /* CLICK COP → BIG MODAL */
-  document.querySelectorAll(".cop-box").forEach(box => {
-    box.addEventListener("click", () => {
-      const idx = parseInt(box.getAttribute("data-index"), 10);
-      const item = list[idx];
-      if (!item || !item.COP || !Array.isArray(item.COP.commonOpponents)) return;
-
-      const rows = item.COP.commonOpponents.map(row => {
-        const t1 = row.team1 || {};
-        const t2 = row.team2 || {};
-        return `
-          <tr>
-            <td>${row.opponent || ""}</td>
-            <td>${t1.ha || ""}</td>
-            <td>${t1.score || ""}</td>
-            <td>${formatEuroDate(t1.date)}</td>
-            <td>${t2.ha || ""}</td>
-            <td>${t2.score || ""}</td>
-            <td>${formatEuroDate(t2.date)}</td>
-          </tr>
-        `;
-      }).join("");
-
-      const html = `
-        <table class="modal-table">
-          <thead>
-            <tr>
-              <th>Opponent</th>
-              <th>T1 H/A</th>
-              <th>T1 Score</th>
-              <th>T1 Date</th>
-              <th>T2 H/A</th>
-              <th>T2 Score</th>
-              <th>T2 Date</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-
-      openBigModal("Common Opponents", html);
-    });
-  });
-
-  /* CLICK H2H → BIG MODAL */
-  document.querySelectorAll(".h2h-box").forEach(box => {
-    if (box.classList.contains("disabled")) return;
-
-    box.addEventListener("click", () => {
-      const idx = parseInt(box.getAttribute("data-index"), 10);
-      const item = list[idx];
-      if (!item || !item.H2H || !Array.isArray(item.H2H.matchesList)) return;
-
-      const rows = item.H2H.matchesList.map(m => `
-        <tr>
-          <td>${formatEuroDate(m.date)}</td>
-          <td>${m.ha || ""}</td>
-          <td>${m.score || ""}</td>
-        </tr>
-      `).join("");
-
-      const html = `
-        <table class="modal-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>H/A</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-
-      openBigModal("Head to Head", html);
-    });
-  });
 }
 
-/* FETCH JSON */
-async function fetchJSON(date=null){
+/* ================== FETCH ================== */
+async function fetchJSON(date){
+  if(controller) controller.abort();
+  controller = new AbortController();
+
   const id=++activeRequestId;
   overlay.style.display="flex";
 
   try{
-    if(!date) date=new Date().toISOString().slice(0,10);
+    const res = await fetch(`data/${date}.json`,{
+      cache:"no-store",
+      signal: controller.signal
+    });
 
-    dateSelector.value=date;
-    dayTitle.textContent=formatEuroDate(date);
+    dayTitle.textContent = formatEuroDate(date);
 
-    const response=await fetch(`data/${date}.json`,{cache:"no-store"});
-
-    if(response.status===404){
+    if(!res.ok){
+      charts.forEach(c=>c.destroy());
+      charts=[];
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
 
-    if(!response.ok){
-      content.innerHTML="<p>- NO DATA!</p>";
+    let data;
+    try{
+      data = await res.json();
+    }catch{
+      content.innerHTML="<p>- INVALID DATA</p>";
       reveal(id);
       return;
     }
 
-    let arr=await response.json();
-    let list=Array.isArray(arr)?arr:[arr];
-
-    if(list.length===0){
+    const list = Array.isArray(data) ? data : [data];
+    if(!list.length){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
@@ -526,21 +364,23 @@ async function fetchJSON(date=null){
     reveal(id);
 
   }catch(e){
-    showOffline();
+    if(e.name!=="AbortError") showOffline();
   }
 }
 
-/* INIT */
+/* ================== INIT ================== */
 window.addEventListener("load",()=>{
   const today=new Date().toISOString().slice(0,10);
   fetchJSON(today);
 });
 
-dateSelector.addEventListener("change",e=>{
-  const v=e.target.value;
-  if(v) fetchJSON(v);
-});
+if(dateSelector){
+  dateSelector.addEventListener("change",e=>{
+    if(e.target.value) fetchJSON(e.target.value);
+  });
+}
 </script>
 
 </body>
 </html>
+
