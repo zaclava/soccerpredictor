@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Soccer Predictor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
 :root{--accent:#00ffff;--bg:#065565;--text:#fff;--card-bg:rgba(0,0,0,.6);--cookie-bg:rgba(0,0,0,.85)}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);border:2px solid var(--accent);min-height:100vh;overflow-x:hidden;position:relative}
@@ -32,13 +31,13 @@ p{text-align:center;margin-top:70px;margin-bottom:10px}
 #cookie-banner button{background:var(--accent);color:#000;border:none;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer}
 canvas{max-width:100%}
 input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent);background:#000;color:var(--accent)}
-.pred-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px;font-size:11px;text-align:center}
-.pred-grid div{padding:3px 2px;border-radius:4px;background:rgba(0,0,0,0.35)}
-.pred-grid .pred-label{font-weight:bold;color:#00ffff}
-.pred-grid .pred-value{font-weight:bold;color:#fff}
 .chart-scroll{overflow-x:auto;padding-bottom:4px;margin-top:6px}
 .chart-scroll-inner{min-width:520px}
 @media(max-width:480px){.chart-scroll-inner{min-width:420px}}
+.pred-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;font-size:13px;text-align:center}
+.pred-cell{padding:10px 6px;border-radius:10px;font-weight:700;color:#fff;box-shadow:0 0 6px rgba(0,0,0,.4);transition:transform .15s ease}
+.pred-cell:hover{transform:scale(1.05)}
+.pred-label{font-size:11px;opacity:.85;margin-bottom:3px}
 .cop-box,.h2h-box{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.55);border:1px solid #00ffff55;font-size:12px;line-height:1.45;box-shadow:0 0 10px rgba(0,255,255,0.15);position:relative}
 .cop-title,.h2h-title{font-weight:700;color:#00ffff;margin-bottom:8px;text-align:center;font-size:14px;letter-spacing:.6px;display:flex;justify-content:center;align-items:center;gap:6px}
 .cop-row{display:flex;justify-content:space-between;gap:10px}
@@ -51,23 +50,17 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
 .h2h-pred,.cop-pred{margin-top:10px;text-align:center;font-weight:700;color:#ffd700;font-size:15px;letter-spacing:.7px}
 </style>
 </head>
-
 <body>
-
 <div id="overlay">
   <div class="spinner"></div>
   <div id="bottom-alert">WAIT, DATA IS LOADING...</div>
 </div>
-
 <div id="offline-overlay">OFFLINE</div>
-
 <div id="cookie-banner" class="hidden">
   <span>This site uses cookies to improve your experience.</span>
   <button id="cookieAccept">OK</button>
 </div>
-
 <div id="deferred-root" class="hidden">
-
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     <a href="#">WhatsApp</a>
@@ -75,24 +68,25 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
     <a href="#">Facebook</a>
     <a href="#">YouTube</a>
   </div>
-
   <div id="headerBar" class="header-bar" onclick="openNav()">
     &#9776;&nbsp;<b>SOCCER PREDICTOR</b>
   </div>
-
   <p>Select matches by date <input type="date" id="date-selector"></p>
-
   <div id="day-title" class="day-title"></div>
-
   <main class="main" id="content"></main>
-
 </div>
-
 <div class="footer">&copy;2025 cl@udiuz</div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script>
+function makeCell(l,v){
+  let b="#444";
+  if(v>=75)b="#00c853";
+  else if(v>=60)b="#ffd600";
+  else if(v>=40)b="#ff9100";
+  else b="#d50000";
+  return `<div class="pred-cell" style="background:${b}"><div class="pred-label">${l}</div>${v}%</div>`;
+}
 const overlay=document.getElementById("overlay");
 const bottomAlert=document.getElementById("bottom-alert");
 const offlineOverlay=document.getElementById("offline-overlay");
@@ -102,42 +96,22 @@ const dateSelector=document.getElementById("date-selector");
 const cookieBanner=document.getElementById("cookie-banner");
 const cookieBtn=document.getElementById("cookieAccept");
 const dayTitle=document.getElementById("day-title");
-
 let activeRequestId=0;
-
-/* SIDENAV */
-function openNav(){
-  document.getElementById("mySidenav").style.width="100%";
-  document.getElementById("headerBar").style.display="none";
-}
-function closeNav(){
-  document.getElementById("mySidenav").style.width="0";
-  document.getElementById("headerBar").style.display="block";
-}
-
-/* COOKIE */
-cookieBtn.onclick=()=>{
-  localStorage.setItem("cookieNoticeAccepted","true");
-  cookieBanner.classList.add("hidden");
-};
-
-/* OFFLINE */
+function openNav(){document.getElementById("mySidenav").style.width="100%";document.getElementById("headerBar").style.display="none";}
+function closeNav(){document.getElementById("mySidenav").style.width="0";document.getElementById("headerBar").style.display="block";}
+cookieBtn.onclick=()=>{localStorage.setItem("cookieNoticeAccepted","true");cookieBanner.classList.add("hidden");};
 function showOffline(){
   overlay.style.display="flex";
   bottomAlert.textContent="OFFLINE...";
   deferredRoot.classList.add("hidden");
   offlineOverlay.style.display="flex";
 }
-
-/* REVEAL */
 function reveal(id){
   if(id!==activeRequestId)return;
   overlay.style.display="none";
   offlineOverlay.style.display="none";
   deferredRoot.classList.remove("hidden");
 }
-
-/* RENDER MATCHES — TOT CODUL TĂU COMPLET */
 function renderPredictions(list){
   content.innerHTML="";
   list.forEach((item,index)=>{
@@ -146,10 +120,8 @@ function renderPredictions(list){
     const away=item.predictions.away;
     const btts=item.predictions.btts;
     const over15=item.predictions.over15;
-
     const card=document.createElement("div");
     card.className="card";
-
     let copHTML="";
     if(item.COP){
       const t1=item.COP.team1;
@@ -167,7 +139,6 @@ function renderPredictions(list){
         <div class="cop-pred">Prediction: ${item.COP.prediction}</div>
       </div>`;
     }
-
     let h2hHTML="";
     if(item.H2H && item.H2H.matches>0){
       h2hHTML=`
@@ -180,73 +151,26 @@ function renderPredictions(list){
         <div class="h2h-pred">Prediction: ${item.H2H.prediction}</div>
       </div>`;
     }
-
     card.innerHTML=`
       <div class="card-header">
         <div>${item.match}<br><small>Date: ${item.date}</small></div>
         <div>Pred: ${item.predictions.final}</div>
       </div>
-
-      <canvas id="chart-${index}" height="150"></canvas>
-
       <div class="pred-grid">
-        <div class="pred-label">1</div><div class="pred-label">X</div><div class="pred-label">2</div>
-        <div class="pred-label">BTTS</div><div class="pred-label">+1.5</div>
-        <div class="pred-value">${home}%</div>
-        <div class="pred-value">${draw}%</div>
-        <div class="pred-value">${away}%</div>
-        <div class="pred-value">${btts}%</div>
-        <div class="pred-value">${over15}%</div>
+        ${makeCell("1",home)}
+        ${makeCell("X",draw)}
+        ${makeCell("2",away)}
+        ${makeCell("BTTS",btts)}
+        ${makeCell("+1.5",over15)}
       </div>
-
-      <div class="chart-scroll"><div class="chart-scroll-inner">
-        <canvas id="formchart-${index}" height="140"></canvas>
-      </div></div>
-
+      <div class="chart-scroll">
+        <div class="chart-scroll-inner">
+          <canvas id="formchart-${index}" height="140"></canvas>
+        </div>
+      </div>
       ${copHTML}${h2hHTML}
     `;
-
     content.appendChild(card);
-
-    /* BAR CHART */
-    const ctx=document.getElementById(`chart-${index}`).getContext("2d");
-    new Chart(ctx,{
-      type:"bar",
-      data:{
-        labels:["1","2","BTTS"],
-        datasets:[{
-          label:"Prediction",
-          data:[home,away,btts],
-          backgroundColor:["rgba(0,255,255,0.8)","rgba(255,215,0,0.8)","rgba(255,80,80,0.8)"],
-          borderColor:["#00ffff","#ffd700","#ff4c4c"],
-          borderWidth:2,
-          barThickness:26
-        }]
-      },
-      options:{
-        responsive:true,
-        animation:false,
-        plugins:{
-          legend:{display:false},
-          datalabels:{
-            color:"#fff",
-            font:{weight:"bold",size:11},
-            anchor:"end",
-            align:"start",
-            formatter:v=>v+"%",
-            textStrokeColor:"#000",
-            textStrokeWidth:3
-          }
-        },
-        scales:{
-          y:{beginAtZero:true,max:100,ticks:{color:"#fff"}},
-          x:{ticks:{color:"#fff"}}
-        }
-      },
-      plugins:[ChartDataLabels]
-    });
-
-    /* FORM CHART */
     const fc=item.formChart;
     if(fc){
       const ctxForm=document.getElementById(`formchart-${index}`).getContext("2d");
@@ -256,7 +180,6 @@ function renderPredictions(list){
       for(let i=0;i<maxLen;i++)labels.push("M"+(i+1));
       for(let i=0;i<t1.length;i++)data1[i]=t1[i].pts;
       for(let i=0;i<t2.length;i++)data2[i]=t2[i].pts;
-
       new Chart(ctxForm,{
         type:"line",
         data:{
@@ -279,89 +202,67 @@ function renderPredictions(list){
     }
   });
 }
-
-/* FETCH JSON — DOAR DATA SELECTATĂ, FĂRĂ FALBACK */
 async function fetchJSON(date=null){
   const id=++activeRequestId;
-
   overlay.style.display="flex";
   bottomAlert.textContent="WAIT, DATA IS LOADING...";
-
   try{
     if(!date){
       date=new Date().toISOString().slice(0,10);
     }
-
     dateSelector.value=date;
     dayTitle.textContent=new Date(date).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
-
     const response=await fetch(`data/${date}.json`,{cache:"no-store"});
-
     if(response.status===404){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
-
     if(!response.ok){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
-
     let arr;
     try{arr=await response.json();}catch{
       content.innerHTML="<p>- INVALID JSON!</p>";
       reveal(id);
       return;
     }
-
     let list=[];
     if(Array.isArray(arr))list=arr;
     else if(arr && typeof arr==="object")list=[arr];
-
     if(list.length===0){
       content.innerHTML="<p>- NO DATA!</p>";
       reveal(id);
       return;
     }
-
     renderPredictions(list);
     reveal(id);
-
     if(navigator.onLine && !localStorage.getItem("cookieNoticeAccepted")){
       cookieBanner.classList.remove("hidden");
     }
-
   }catch{
     if(!navigator.onLine){showOffline();return;}
     content.innerHTML="<p>- NO DATA!</p>";
     reveal(id);
   }
 }
-
-/* SELECTOR — PERMITE ORICE DATĂ */
 dateSelector.addEventListener("input",e=>{
   const d=e.target.value;
   if(!d)return;
   fetchJSON(d);
 });
-
-/* INIT — ÎNCARCĂ DOAR DATA CURENTĂ */
 window.addEventListener("load",()=>{
   setTimeout(()=>{
     if(!navigator.onLine){
       showOffline();
       return;
     }
-
     const today=new Date().toISOString().slice(0,10);
-
     dateSelector.setAttribute("value",today);
     dateSelector.value=today;
-
     fetchJSON(today);
-
   },0);
 });
 </script>
