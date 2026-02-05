@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Soccer Predictor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 :root{--accent:#00ffff;--bg:#065565;--text:#fff;--card-bg:rgba(0,0,0,.6);--cookie-bg:rgba(0,0,0,.85)}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);border:2px solid var(--accent);min-height:100vh;overflow-x:hidden;position:relative}
@@ -22,7 +23,6 @@ p{text-align:center;margin-top:70px;margin-bottom:10px}
 #offline-overlay{position:fixed;inset:0;background:#000;color:#f55;font-size:22px;font-weight:700;text-align:center;justify-content:center;align-items:center;z-index:10001;display:none}
 .main{padding:10px 12px 50px}
 .card{background:var(--card-bg);border-radius:12px;padding:12px;margin-bottom:16px;box-shadow:0 0 12px rgba(0,0,0,.7)}
-.card:last-child{margin-bottom:10px}
 .card-header{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
 .card-header small{color:#ccc}
 .day-title{color:var(--accent);text-align:center;font-size:20px;font-weight:700;margin:10px 0 12px}
@@ -30,7 +30,6 @@ p{text-align:center;margin-top:70px;margin-bottom:10px}
 #cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--cookie-bg);color:#fff;padding:12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;font-size:14px;border-top:2px solid var(--accent);z-index:11000}
 #cookie-banner span{flex:1 1 220px;margin-bottom:6px}
 #cookie-banner button{background:var(--accent);color:#000;border:none;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer}
-#cookie-banner.hidden{display:none}
 canvas{max-width:100%}
 input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent);background:#000;color:var(--accent)}
 .pred-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px;font-size:11px;text-align:center}
@@ -40,35 +39,35 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
 .chart-scroll{overflow-x:auto;padding-bottom:4px;margin-top:6px}
 .chart-scroll-inner{min-width:520px}
 @media(max-width:480px){.chart-scroll-inner{min-width:420px}}
-.cop-box{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.55);border:1px solid #00ffff55;font-size:12px;line-height:1.45;box-shadow:0 0 10px rgba(0,255,255,0.15);position:relative}
-.cop-title{font-weight:700;color:#00ffff;margin-bottom:8px;text-align:center;font-size:14px;letter-spacing:.6px;display:flex;justify-content:center;align-items:center;gap:6px}
-.cop-title .icon{font-size:16px;color:#00ffff}
+.cop-box,.h2h-box{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.55);border:1px solid #00ffff55;font-size:12px;line-height:1.45;box-shadow:0 0 10px rgba(0,255,255,0.15);position:relative}
+.cop-title,.h2h-title{font-weight:700;color:#00ffff;margin-bottom:8px;text-align:center;font-size:14px;letter-spacing:.6px;display:flex;justify-content:center;align-items:center;gap:6px}
 .cop-row{display:flex;justify-content:space-between;gap:10px}
-.cop-team{flex:1;background:rgba(0,0,0,0.25);padding:10px;border-radius:10px;border:1px solid #00ffff33;text-align:center;transition:.25s}
-.cop-team b{color:#00ffff;font-size:12px}
+.cop-team{flex:1;background:rgba(0,0,0,0.25);padding:10px;border-radius:10px;border:1px solid #00ffff33;text-align:center}
 .cop-team.highlight{border-color:#ffd700cc;box-shadow:0 0 12px rgba(255,215,0,0.35);transform:scale(1.03);background:rgba(255,215,0,0.08)}
-.cop-pred{margin-top:10px;text-align:center;font-weight:700;color:#ffd700;font-size:15px;letter-spacing:.7px}
-.cop-badge{position:absolute;top:-10px;right:-10px;background:#ffd700;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 0 8px rgba(255,215,0,0.5)}
-.h2h-box{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.55);border:1px solid #00ffff55;font-size:12px;line-height:1.45;box-shadow:0 0 10px rgba(0,255,255,0.15);position:relative}
-.h2h-title{font-weight:700;color:#00ffff;margin-bottom:8px;text-align:center;font-size:14px;letter-spacing:.6px;display:flex;justify-content:center;align-items:center;gap:6px}
-.h2h-title .icon{font-size:16px;color:#00ffff}
+.cop-badge,.h2h-badge{position:absolute;top:-10px;background:#ffd700;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 0 8px rgba(255,215,0,0.5)}
+.cop-badge{right:-10px}
+.h2h-badge{left:-10px}
 .h2h-stats{text-align:center;margin-top:6px;color:#fff}
-.h2h-pred{margin-top:10px;text-align:center;font-weight:700;color:#ffd700;font-size:15px;letter-spacing:.7px}
-.h2h-badge{position:absolute;top:-10px;left:-10px;background:#ffd700;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 0 8px rgba(255,215,0,0.5)}
-@media(min-width:900px){.card{max-width:600px;margin:12px auto;padding:10px}}
+.h2h-pred,.cop-pred{margin-top:10px;text-align:center;font-weight:700;color:#ffd700;font-size:15px;letter-spacing:.7px}
 </style>
 </head>
+
 <body>
+
 <div id="overlay">
   <div class="spinner"></div>
-  <div id="bottom-alert">Wait, data is loading...</div>
+  <div id="bottom-alert">WAIT, DATA IS LOADING...</div>
 </div>
-<div id="offline-overlay">Offline • Reloading...</div>
+
+<div id="offline-overlay">OFFLINE</div>
+
 <div id="cookie-banner" class="hidden">
   <span>This site uses cookies to improve your experience.</span>
   <button id="cookieAccept">OK</button>
 </div>
+
 <div id="deferred-root" class="hidden">
+
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     <a href="#">WhatsApp</a>
@@ -76,13 +75,19 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
     <a href="#">Facebook</a>
     <a href="#">YouTube</a>
   </div>
+
   <div id="headerBar" class="header-bar" onclick="openNav()">
     &#9776;&nbsp;<b>SOCCER PREDICTOR</b>
   </div>
+
   <p>Select matches by date <input type="date" id="date-selector"></p>
+
   <div id="day-title" class="day-title"></div>
+
   <main class="main" id="content"></main>
+
 </div>
+
 <div class="footer">&copy;2025 cl@udiuz</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,9 +103,7 @@ const cookieBanner=document.getElementById("cookie-banner");
 const cookieBtn=document.getElementById("cookieAccept");
 const dayTitle=document.getElementById("day-title");
 
-let retryTimer=null;
 let activeRequestId=0;
-let lastLoadedDate=null;
 
 /* SIDENAV */
 function openNav(){
@@ -118,28 +121,23 @@ cookieBtn.onclick=()=>{
   cookieBanner.classList.add("hidden");
 };
 
-/* OFFLINE HANDLING */
-function scheduleRetry(ms=5000){
-  clearTimeout(retryTimer);
-  retryTimer=setTimeout(()=>fetchJSON(dateSelector.value||null),ms);
-}
+/* OFFLINE */
 function showOffline(){
   overlay.style.display="flex";
-  bottomAlert.style.display="block";
-  bottomAlert.textContent="RETRYING...";
+  bottomAlert.textContent="OFFLINE...";
   deferredRoot.classList.add("hidden");
   offlineOverlay.style.display="flex";
-  scheduleRetry();
 }
-function reveal(requestId){
-  if(requestId!==activeRequestId)return;
+
+/* REVEAL */
+function reveal(id){
+  if(id!==activeRequestId)return;
   overlay.style.display="none";
-  bottomAlert.style.display="none";
   offlineOverlay.style.display="none";
   deferredRoot.classList.remove("hidden");
 }
 
-/* RENDER MATCH CARDS */
+/* RENDER MATCHES — TOT CODUL TĂU COMPLET */
 function renderPredictions(list){
   content.innerHTML="";
   list.forEach((item,index)=>{
@@ -159,44 +157,28 @@ function renderPredictions(list){
       const t1Class=t1.points>t2.points?"highlight":"";
       const t2Class=t2.points>t1.points?"highlight":"";
       copHTML=`
-        <div class="cop-box">
-          <div class="cop-badge">${item.COP.prediction}</div>
-          <div class="cop-title">
-            <span class="icon">⚖️</span>
-            COP – Common Opponents Predictor
-          </div>
-          <div class="cop-row">
-            <div class="cop-team ${t1Class}">
-              <b>Team 1</b><br>
-              ${t1.points}p (${t1.wins}W ${t1.draws}D ${t1.losses}L)
-            </div>
-            <div class="cop-team ${t2Class}">
-              <b>Team 2</b><br>
-              ${t2.points}p (${t2.wins}W ${t2.draws}D ${t2.losses}L)
-            </div>
-          </div>
-          <div class="cop-pred">Prediction: ${item.COP.prediction}</div>
+      <div class="cop-box">
+        <div class="cop-badge">${item.COP.prediction}</div>
+        <div class="cop-title"><span class="icon">⚖️</span>COP – Common Opponents Predictor</div>
+        <div class="cop-row">
+          <div class="cop-team ${t1Class}"><b>Team 1</b><br>${t1.points}p (${t1.wins}W ${t1.draws}D ${t1.losses}L)</div>
+          <div class="cop-team ${t2Class}"><b>Team 2</b><br>${t2.points}p (${t2.wins}W ${t2.draws}D ${t2.losses}L)</div>
         </div>
-      `;
+        <div class="cop-pred">Prediction: ${item.COP.prediction}</div>
+      </div>`;
     }
 
     let h2hHTML="";
     if(item.H2H && item.H2H.matches>0){
       h2hHTML=`
-        <div class="h2h-box">
-          <div class="h2h-badge">${item.H2H.prediction}</div>
-          <div class="h2h-title">
-            <span class="icon">🔁</span>
-            H2H – Last ${item.H2H.matches} Meetings
-          </div>
-          <div class="h2h-stats">
-            ${item.H2H.wins}W ${item.H2H.draws}D ${item.H2H.losses}L<br>
-            Goals: ${item.H2H.goalsFor}‑${item.H2H.goalsAgainst}<br>
-            Points: ${item.H2H.points}
-          </div>
-          <div class="h2h-pred">Prediction: ${item.H2H.prediction}</div>
-        </div>
-      `;
+      <div class="h2h-box">
+        <div class="h2h-badge">${item.H2H.prediction}</div>
+        <div class="h2h-title"><span class="icon">🔁</span>H2H – Last ${item.H2H.matches} Meetings</div>
+        <div class="h2h-stats">${item.H2H.wins}W ${item.H2H.draws}D ${item.H2H.losses}L<br>
+        Goals: ${item.H2H.goalsFor}-${item.H2H.goalsAgainst}<br>
+        Points: ${item.H2H.points}</div>
+        <div class="h2h-pred">Prediction: ${item.H2H.prediction}</div>
+      </div>`;
     }
 
     card.innerHTML=`
@@ -204,29 +186,29 @@ function renderPredictions(list){
         <div>${item.match}<br><small>Date: ${item.date}</small></div>
         <div>Pred: ${item.predictions.final}</div>
       </div>
+
       <canvas id="chart-${index}" height="150"></canvas>
+
       <div class="pred-grid">
-        <div class="pred-label">1</div>
-        <div class="pred-label">X</div>
-        <div class="pred-label">2</div>
-        <div class="pred-label">BTTS</div>
-        <div class="pred-label">+1.5</div>
+        <div class="pred-label">1</div><div class="pred-label">X</div><div class="pred-label">2</div>
+        <div class="pred-label">BTTS</div><div class="pred-label">+1.5</div>
         <div class="pred-value">${home}%</div>
         <div class="pred-value">${draw}%</div>
         <div class="pred-value">${away}%</div>
         <div class="pred-value">${btts}%</div>
         <div class="pred-value">${over15}%</div>
       </div>
-      <div class="chart-scroll">
-        <div class="chart-scroll-inner">
-          <canvas id="formchart-${index}" height="140"></canvas>
-        </div>
-      </div>
-      ${copHTML}
-      ${h2hHTML}
+
+      <div class="chart-scroll"><div class="chart-scroll-inner">
+        <canvas id="formchart-${index}" height="140"></canvas>
+      </div></div>
+
+      ${copHTML}${h2hHTML}
     `;
+
     content.appendChild(card);
 
+    /* BAR CHART */
     const ctx=document.getElementById(`chart-${index}`).getContext("2d");
     new Chart(ctx,{
       type:"bar",
@@ -235,11 +217,7 @@ function renderPredictions(list){
         datasets:[{
           label:"Prediction",
           data:[home,away,btts],
-          backgroundColor:[
-            "rgba(0,255,255,0.8)",
-            "rgba(255,215,0,0.8)",
-            "rgba(255,80,80,0.8)"
-          ],
+          backgroundColor:["rgba(0,255,255,0.8)","rgba(255,215,0,0.8)","rgba(255,80,80,0.8)"],
           borderColor:["#00ffff","#ffd700","#ff4c4c"],
           borderWidth:2,
           barThickness:26
@@ -268,49 +246,30 @@ function renderPredictions(list){
       plugins:[ChartDataLabels]
     });
 
+    /* FORM CHART */
     const fc=item.formChart;
-    if(fc && Array.isArray(fc.team1) && Array.isArray(fc.team2)){
+    if(fc){
       const ctxForm=document.getElementById(`formchart-${index}`).getContext("2d");
-      const t1=fc.team1;
-      const t2=fc.team2;
+      const t1=fc.team1,t2=fc.team2;
       const maxLen=Math.max(t1.length,t2.length);
-      const labels=[];
-      const data1=new Array(maxLen).fill(null);
-      const data2=new Array(maxLen).fill(null);
+      const labels=[],data1=new Array(maxLen).fill(null),data2=new Array(maxLen).fill(null);
       for(let i=0;i<maxLen;i++)labels.push("M"+(i+1));
       for(let i=0;i<t1.length;i++)data1[i]=t1[i].pts;
       for(let i=0;i<t2.length;i++)data2[i]=t2[i].pts;
+
       new Chart(ctxForm,{
         type:"line",
         data:{
           labels:labels,
           datasets:[
-            {
-              label:fc.team1Name,
-              data:data1,
-              borderColor:"#22c55e",
-              backgroundColor:"rgba(34,197,94,0.15)",
-              tension:0.3,
-              pointRadius:4,
-              pointHoverRadius:6
-            },
-            {
-              label:fc.team2Name,
-              data:data2,
-              borderColor:"#ef4444",
-              backgroundColor:"rgba(239,68,68,0.15)",
-              tension:0.3,
-              pointRadius:4,
-              pointHoverRadius:6
-            }
+            {label:fc.team1Name,data:data1,borderColor:"#22c55e",backgroundColor:"rgba(34,197,94,0.15)",tension:0.3,pointRadius:4},
+            {label:fc.team2Name,data:data2,borderColor:"#ef4444",backgroundColor:"rgba(239,68,68,0.15)",tension:0.3,pointRadius:4}
           ]
         },
         options:{
           responsive:true,
           maintainAspectRatio:false,
-          plugins:{
-            legend:{labels:{color:"#fff",font:{size:10}}}
-          },
+          plugins:{legend:{labels:{color:"#fff",font:{size:10}}}},
           scales:{
             x:{ticks:{color:"#9ca3af",font:{size:9}},grid:{color:"#111827"}},
             y:{ticks:{color:"#9ca3af",font:{size:9}},grid:{color:"#111827"},suggestedMin:0,suggestedMax:3,stepSize:1}
@@ -321,56 +280,39 @@ function renderPredictions(list){
   });
 }
 
-/* FETCH JSON cu fallback la ziua anterioară */
-async function fetchJSON(date=null,isFallback=false){
-  clearTimeout(retryTimer);
-  const requestId=++activeRequestId;
+/* FETCH JSON — DOAR DATA SELECTATĂ, FĂRĂ FALBACK */
+async function fetchJSON(date=null){
+  const id=++activeRequestId;
 
   overlay.style.display="flex";
-  bottomAlert.style.display="block";
-  bottomAlert.textContent=isFallback?"TRYING PREVIOUS DAY...":"WAIT, DATA IS LOADING...";
+  bottomAlert.textContent="WAIT, DATA IS LOADING...";
 
   try{
     if(!date){
-      const today=new Date().toISOString().slice(0,10);
-      date=today;
+      date=new Date().toISOString().slice(0,10);
     }
 
     dateSelector.value=date;
-    dayTitle.textContent=new Date(date).toLocaleDateString("en-US",{
-      year:"numeric",
-      month:"long",
-      day:"numeric"
-    });
+    dayTitle.textContent=new Date(date).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
 
     const response=await fetch(`data/${date}.json`,{cache:"no-store"});
 
     if(response.status===404){
-      const dObj=new Date(date);
-      dObj.setDate(dObj.getDate()-1);
-      const prev=dObj.toISOString().slice(0,10);
-      const minDate="2025-01-01";
-      if(prev>=minDate){
-        fetchJSON(prev,true);
-        return;
-      }
-      content.innerHTML=`<p>- NO DATA!</p>`;
-      reveal(requestId);
+      content.innerHTML="<p>- NO DATA!</p>";
+      reveal(id);
       return;
     }
 
     if(!response.ok){
-      content.innerHTML=`<p>- NO DATA!</p>`;
-      reveal(requestId);
+      content.innerHTML="<p>- NO DATA!</p>";
+      reveal(id);
       return;
     }
 
     let arr;
-    try{
-      arr=await response.json();
-    }catch(jsonErr){
-      content.innerHTML=`<p>- INVALID JSON!</p>`;
-      reveal(requestId);
+    try{arr=await response.json();}catch{
+      content.innerHTML="<p>- INVALID JSON!</p>";
+      reveal(id);
       return;
     }
 
@@ -379,50 +321,33 @@ async function fetchJSON(date=null,isFallback=false){
     else if(arr && typeof arr==="object")list=[arr];
 
     if(list.length===0){
-      content.innerHTML=`<p>- NO DATA!</p>`;
-      reveal(requestId);
+      content.innerHTML="<p>- NO DATA!</p>";
+      reveal(id);
       return;
     }
 
-    lastLoadedDate=date;
     renderPredictions(list);
-    reveal(requestId);
+    reveal(id);
 
     if(navigator.onLine && !localStorage.getItem("cookieNoticeAccepted")){
       cookieBanner.classList.remove("hidden");
     }
 
-  }catch(err){
-    if(!navigator.onLine){
-      showOffline();
-      return;
-    }
-    content.innerHTML=`<p>- NO DATA!</p>`;
-    reveal(requestId);
+  }catch{
+    if(!navigator.onLine){showOffline();return;}
+    content.innerHTML="<p>- NO DATA!</p>";
+    reveal(id);
   }
 }
 
-/* EVENTS */
+/* SELECTOR — PERMITE ORICE DATĂ */
 dateSelector.addEventListener("input",e=>{
   const d=e.target.value;
   if(!d)return;
-  const today=new Date().toISOString().slice(0,10);
-  if(d>today){
-    dateSelector.value=today;
-    fetchJSON(today);
-    return;
-  }
-  dayTitle.textContent=new Date(d).toLocaleDateString("en-US",{
-    year:"numeric",
-    month:"long",
-    day:"numeric"
-  });
   fetchJSON(d);
 });
 
-window.addEventListener("offline",showOffline);
-
-/* INIT – stabil, cu auto-refresh și auto-switch după miezul nopții */
+/* INIT — ÎNCARCĂ DOAR DATA CURENTĂ */
 window.addEventListener("load",()=>{
   setTimeout(()=>{
     if(!navigator.onLine){
@@ -432,29 +357,10 @@ window.addEventListener("load",()=>{
 
     const today=new Date().toISOString().slice(0,10);
 
-    dateSelector.max=today;
     dateSelector.setAttribute("value",today);
     dateSelector.value=today;
 
     fetchJSON(today);
-
-    setInterval(()=>{
-      const nowToday=new Date().toISOString().slice(0,10);
-      if(navigator.onLine && dateSelector.value===nowToday){
-        fetchJSON(dateSelector.value);
-      }
-    },30000);
-
-    setInterval(()=>{
-      if(!navigator.onLine)return;
-      const nowToday=new Date().toISOString().slice(0,10);
-      if(nowToday!==lastLoadedDate){
-        dateSelector.max=nowToday;
-        dateSelector.setAttribute("value",nowToday);
-        dateSelector.value=nowToday;
-        fetchJSON(nowToday);
-      }
-    },60000);
 
   },0);
 });
