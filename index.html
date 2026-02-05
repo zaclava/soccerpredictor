@@ -9,33 +9,72 @@
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);border:2px solid var(--accent);min-height:100vh;overflow-x:hidden;position:relative}
 .hidden{display:none}
 p{text-align:center;margin-top:70px;margin-bottom:10px}
+
+/* SIDENAV */
 .sidenav{height:100%;width:0;position:fixed;z-index:1;top:0;left:0;background-color:#065565;overflow-x:hidden;transition:.5s;padding-top:60px}
 .sidenav a{padding:8px 8px 8px 28px;text-decoration:none;font-size:25px;color:#fff;display:block;transition:.3s}
 .sidenav a:hover{color:#f85356}
 .sidenav .closebtn{position:absolute;top:0;right:48px;font-size:36px;margin-left:50px}
+
+/* HEADER */
 .header-bar{position:fixed;top:0;left:0;right:0;margin:auto;text-align:center;background:#000;color:var(--accent);padding:12px;font-size:28px;cursor:pointer;z-index:9999}
+
+/* LOADER */
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999}
-.spinner{width:40px;height:40px;border:5px solid rgba(255,255,255,.3);border-top:5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+.spinner{width:40px;height:40px;border:5px solid rgba(255,255,255,.3);border-top:5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* OFFLINE */
 #offline-overlay{position:fixed;inset:0;background:#000;color:#f55;font-size:22px;font-weight:700;text-align:center;justify-content:center;align-items:center;z-index:10001;display:none}
+
+/* MAIN */
 .main{padding:10px 12px 50px}
 .card{background:var(--card-bg);border-radius:12px;padding:12px;margin-bottom:16px;box-shadow:0 0 12px rgba(0,0,0,.7)}
 .card-header{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
 .card-header small{color:#ccc}
 .day-title{color:var(--accent);text-align:center;font-size:20px;font-weight:700;margin:10px 0 12px}
+
+/* FOOTER */
 .footer{position:fixed;bottom:0;left:0;right:0;text-align:center;background:#000;color:var(--accent);padding:8px 0;border-top:2px solid var(--accent);z-index:1000}
+
+/* COOKIE */
 #cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--cookie-bg);color:#fff;padding:12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;font-size:14px;border-top:2px solid var(--accent);z-index:11000}
 #cookie-banner span{flex:1 1 220px;margin-bottom:6px}
 #cookie-banner button{background:var(--accent);color:#000;border:none;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer}
+
+/* CHART FIX */
 canvas{max-width:100%}
-input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent);background:#000;color:var(--accent)}
 .chart-scroll{overflow-x:auto;padding-bottom:4px;margin-top:6px}
-.chart-scroll-inner{min-width:520px}
-@media(max-width:480px){.chart-scroll-inner{min-width:420px}}
-.pred-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;font-size:13px;text-align:center}
-.pred-cell{padding:10px 6px;border-radius:10px;font-weight:700;color:#fff;box-shadow:0 0 6px rgba(0,0,0,.4);transition:transform .15s ease}
+.chart-scroll-inner{
+  min-width:320px;
+  max-width:100%;
+}
+@media(max-width:480px){
+  .chart-scroll-inner{min-width:300px}
+}
+
+/* GRID FIX + BOLD */
+.pred-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  margin-top:10px;
+  font-size:13px;
+  text-align:center
+}
+.pred-cell{
+  padding:10px 6px;
+  border-radius:10px;
+  font-weight:900;
+  font-family:"Arial Black", Arial, sans-serif;
+  color:#fff;
+  box-shadow:0 0 6px rgba(0,0,0,.4);
+  transition:transform .15s ease
+}
 .pred-cell:hover{transform:scale(1.05)}
 .pred-label{font-size:11px;opacity:.85;margin-bottom:3px}
+
+/* COP + H2H */
 .cop-box,.h2h-box{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.55);border:1px solid #00ffff55;font-size:12px;line-height:1.45;box-shadow:0 0 10px rgba(0,255,255,0.15);position:relative}
 .cop-title,.h2h-title{font-weight:700;color:#00ffff;margin-bottom:8px;text-align:center;font-size:14px;letter-spacing:.6px;display:flex;justify-content:center;align-items:center;gap:6px}
 .cop-row{display:flex;justify-content:space-between;gap:10px}
@@ -50,10 +89,8 @@ input[type=date]{padding:4px 6px;border-radius:4px;border:1px solid var(--accent
 </head>
 
 <body>
-<div id="overlay">
-  <div class="spinner"></div>
-</div>
 
+<div id="overlay"><div class="spinner"></div></div>
 <div id="offline-overlay">OFFLINE</div>
 
 <div id="cookie-banner" class="hidden">
@@ -181,7 +218,7 @@ function renderPredictions(list){
 
       <div class="chart-scroll">
         <div class="chart-scroll-inner">
-          <canvas id="formchart-${index}" height="140"></canvas>
+          <canvas id="formchart-${index}" height="110"></canvas>
         </div>
       </div>
 
